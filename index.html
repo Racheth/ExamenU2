@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"
+        integrity="sha512-3RlxD1bW34eFKPwj9gUXEWtdSMC59QqIqHnD8O/NoTwSJhgxRizdcFVQhUMFyTp5RwLTDL0Lbcqtl8b7bFAzog=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Document</title>
+</head>
+
+<body>
+
+    <script>
+        var numPartes = 0;
+        var diametro = 80;
+        var centerX, centerY;
+        var radio;
+        function setup() {
+            createCanvas(500, 500);
+            centerX = width / 2;
+            centerY = height / 2;
+            radio = diametro / 2;
+
+            var inputPartes = createInput(numPartes, 'number');
+            inputPartes.position(160, 100);
+            inputPartes.input(() => {
+                numPartes = inputPartes.value();
+                dibujarCirculos();
+            });
+
+            strokeWeight(2);
+            text("PuntoPendiente", centerX - 40, centerY - 50);
+            text("DDA", centerX - 110, centerY - 50);
+            text("Bresenham", centerX + 70, centerY - 50);
+            dibujarCirculos();
+        }
+        function dibujarCirculos() {
+
+            stroke('purple');
+            circle(centerX, centerY, diametro);
+            circle(centerX - 100, centerY, diametro);
+            circle(centerX + 100, centerY, diametro);
+            var angulo = 0;
+            var anguloPorcion = TWO_PI / numPartes;
+            for (var i = 0; i < numPartes; i++) {
+                var punto1 = calcularPuntoEnCirculo(angulo);
+                var punto2 = calcularPuntoEnCirculo(angulo + anguloPorcion);
+
+                PuntoPendiente(centerX, centerY, punto1.x, punto1.y);
+                DDA(centerX - 100, centerY, punto1.x - 100, punto1.y);
+                bresenham(centerX + 100, centerY, punto1.x + 100, punto1.y);
+                angulo += anguloPorcion;
+            }
+        }
+        function calcularPuntoEnCirculo(angulo) {
+            var x = centerX + radio * cos(angulo);
+            var y = centerY + radio * sin(angulo);
+            return { x, y };
+        }
+        function PuntoPendiente(x1, y1, x2, y2) {
+            if (x1 == x2) {
+
+                line(x1, y1, x2, y2);
+            } else {
+                var m = (y2 - y1) / (x2 - x1);
+                var b = y1 - m * x1;
+
+                var xMin = x1;
+                var xMax = x2;
+                var yMin = y1;
+                var yMax = y2;
+                var x1p = xMin;
+                var y1p = m * xMin + b;
+                var x2p = xMax;
+                var y2p = m * xMax + b;
+
+                strokeWeight(2);
+                line(x1p, y1p, x2p, y2p);
+            }
+        }
+        function DDA(x1, y1, x2, y2) {
+            var dx = x2 - x1;
+            var dy = y2 - y1;
+
+            var steps = Math.max(Math.abs(dx), Math.abs(dy));
+
+            var xIncrement = dx / steps;
+            var yIncrement = dy / steps;
+
+            var x = x1;
+            var y = y1;
+
+            strokeWeight(2);
+            for (let i = 0; i <= steps; i++) {
+                point(x, y);
+
+                x += xIncrement;
+                y += yIncrement;
+
+                line(x - xIncrement, y - yIncrement, x, y);
+            }
+        }
+
+        function bresenham(x, y, x1, y1) {
+            var dx = x1 - x;
+            var dy = y1 - y;
+            var steps;
+            //x es x 
+            //y es Y
+            if (abs(dx) > abs(dy))
+                steps = abs(dx);
+            else
+                steps = abs(dy);
+
+
+            var xs = dx / steps;
+            var ys = dy / steps;
+
+            for (i = 0; i <= steps; i++) {
+                point(x, y);
+
+                stroke('purple');
+                strokeWeight(2);
+
+                x = x + xs;
+                y = y + ys;
+            }
+
+        }
+    </script>
+</body>
+
+</html>
